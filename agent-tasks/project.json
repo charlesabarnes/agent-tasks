@@ -1,5 +1,5 @@
 {
-  "name": "spartan-drizzle",
+  "name": "agent-tasks",
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "targets": {
@@ -17,31 +17,31 @@
       },
       "outputs": [
         "{options.outputPath}",
-        "{workspaceRoot}/dist/spartan-drizzle/.nitro",
-        "{workspaceRoot}/dist/spartan-drizzle/ssr",
-        "{workspaceRoot}/dist/spartan-drizzle/analog"
+        "{workspaceRoot}/dist/agent-tasks/.nitro",
+        "{workspaceRoot}/dist/agent-tasks/ssr",
+        "{workspaceRoot}/dist/agent-tasks/analog"
       ],
       "options": {
-        "main": "spartan-drizzle/src/main.ts",
-        "configFile": "spartan-drizzle/vite.config.ts",
-        "outputPath": "dist/spartan-drizzle/client",
-        "tsConfig": "spartan-drizzle/tsconfig.app.json"
+        "main": "agent-tasks/src/main.ts",
+        "configFile": "agent-tasks/vite.config.ts",
+        "outputPath": "dist/agent-tasks/client",
+        "tsConfig": "agent-tasks/tsconfig.app.json"
       }
     },
     "serve": {
       "executor": "@analogjs/platform:vite-dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "spartan-drizzle:build",
+        "buildTarget": "agent-tasks:build",
         "port": 4200
       },
       "configurations": {
         "development": {
-          "buildTarget": "spartan-drizzle:build:development",
+          "buildTarget": "agent-tasks:build:development",
           "hmr": true
         },
         "production": {
-          "buildTarget": "spartan-drizzle:build:production"
+          "buildTarget": "agent-tasks:build:production"
         }
       }
     },
@@ -53,5 +53,5 @@
     }
   },
   "tags": [],
-  "sourceRoot": "./spartan-drizzle/src"
+  "sourceRoot": "./agent-tasks/src"
 }

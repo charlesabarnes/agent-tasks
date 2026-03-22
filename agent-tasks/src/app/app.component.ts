@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'spartan-drizzle-root',
+  selector: 'agent-tasks-root',
   imports: [RouterOutlet],
   template: ` <router-outlet></router-outlet> `,
 })

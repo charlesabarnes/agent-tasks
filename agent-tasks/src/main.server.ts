@@ -14,7 +14,7 @@ if (import.meta.env.PROD) {
 }
 
 export function bootstrap() {
-  return bootstrapApplication(AppComponent, config, context);
+  return bootstrapApplication(AppComponent, config);
 }
 
 export default async function render(

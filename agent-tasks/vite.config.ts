@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
     },
     
     build: {
-      outDir: '../dist/./spartan-drizzle/client',
+      outDir: '../dist/./agent-tasks/client',
       reportCompressedSize: true,    
       target: ['es2020'],
     },
