@@ -4,6 +4,7 @@ import { userRouter } from './users';
 import { organizationRouter } from './organizations';
 import { projectRouter } from './projects';
 import { taskRouter } from './tasks';
+import { inviteRouter } from './invites';
 
 export const appRouter = router({
   auth: authRouter,
@@ -11,6 +12,7 @@ export const appRouter = router({
   organization: organizationRouter,
   project: projectRouter,
   task: taskRouter,
+  invite: inviteRouter,
 });
 
 export type AppRouter = typeof appRouter;

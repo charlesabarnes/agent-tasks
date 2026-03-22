@@ -7,6 +7,7 @@ import { users, organizations, memberships } from '../../../drizzle/schema';
 import { eq } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '../../auth/password';
 import { signToken, JWT_COOKIE_NAME } from '../../auth/jwt';
+import { acceptPendingInvites } from './invites';
 
 const cookieOptions = {
   httpOnly: true,
@@ -74,6 +75,9 @@ export const authRouter = router({
 
         return newUser;
       });
+
+      // Accept any pending invites for this email
+      await acceptPendingInvites(user.id, input.email);
 
       const token = signToken({ userId: user.id });
       setCookie(ctx.event, JWT_COOKIE_NAME, token, cookieOptions);

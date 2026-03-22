@@ -151,6 +151,38 @@ export const tasksRelations = relations(tasks, ({ one, many }) => ({
   }),
 }));
 
+// ── Invites ──────────────────────────────────────────
+export const inviteStatusEnum = pgEnum('invite_status', [
+  'pending',
+  'accepted',
+  'expired',
+]);
+
+export const invites = pgTable('invite', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  email: text('email').notNull(),
+  organizationId: uuid('organization_id')
+    .notNull()
+    .references(() => organizations.id, { onDelete: 'cascade' }),
+  role: memberRoleEnum('role').default('member').notNull(),
+  invitedById: uuid('invited_by_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  status: inviteStatusEnum('status').default('pending').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const invitesRelations = relations(invites, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [invites.organizationId],
+    references: [organizations.id],
+  }),
+  invitedBy: one(users, {
+    fields: [invites.invitedById],
+    references: [users.id],
+  }),
+}));
+
 // ── Type exports ───────────────────────────────────────
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -162,3 +194,5 @@ export type Project = InferSelectModel<typeof projects>;
 export type NewProject = InferInsertModel<typeof projects>;
 export type Task = InferSelectModel<typeof tasks>;
 export type NewTask = InferInsertModel<typeof tasks>;
+export type Invite = InferSelectModel<typeof invites>;
+export type NewInvite = InferInsertModel<typeof invites>;
