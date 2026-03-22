@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { publicProcedure, router } from '../trpc';
+import { protectedProcedure, router } from '../trpc';
 import { db } from '../../../drizzle/db';
 import { organizations, memberships } from '../../../drizzle/schema';
 import { eq, and } from 'drizzle-orm';
 
 export const organizationRouter = router({
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1),
@@ -34,7 +34,7 @@ export const organizationRouter = router({
       });
     }),
 
-  getBySlug: publicProcedure
+  getBySlug: protectedProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
       return await db.query.organizations.findFirst({
@@ -43,13 +43,13 @@ export const organizationRouter = router({
       });
     }),
 
-  list: publicProcedure.query(async () => {
+  list: protectedProcedure.query(async () => {
     return await db.query.organizations.findMany({
       with: { memberships: true },
     });
   }),
 
-  addMember: publicProcedure
+  addMember: protectedProcedure
     .input(
       z.object({
         organizationId: z.string().uuid(),
@@ -69,7 +69,7 @@ export const organizationRouter = router({
       return membership;
     }),
 
-  removeMember: publicProcedure
+  removeMember: protectedProcedure
     .input(
       z.object({
         organizationId: z.string().uuid(),
@@ -88,7 +88,7 @@ export const organizationRouter = router({
         .returning();
     }),
 
-  listForUser: publicProcedure
+  listForUser: protectedProcedure
     .input(z.object({ userId: z.string().uuid() }))
     .query(async ({ input }) => {
       return await db.query.memberships.findMany({

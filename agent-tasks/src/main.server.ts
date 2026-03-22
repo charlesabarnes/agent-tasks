@@ -13,8 +13,8 @@ if (import.meta.env.PROD) {
   enableProdMode();
 }
 
-export function bootstrap() {
-  return bootstrapApplication(AppComponent, config);
+export function bootstrap(context?: BootstrapContext) {
+  return bootstrapApplication(AppComponent, config, context);
 }
 
 export default async function render(

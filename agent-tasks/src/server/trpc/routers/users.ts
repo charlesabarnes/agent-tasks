@@ -1,22 +1,25 @@
 import { z } from 'zod';
-import { publicProcedure, router } from '../trpc';
+import { protectedProcedure, router } from '../trpc';
 import { db } from '../../../drizzle/db';
 import { users, organizations, memberships } from '../../../drizzle/schema';
 import { eq } from 'drizzle-orm';
+import { hashPassword } from '../../auth/password';
 
 export const userRouter = router({
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({
         email: z.string().email(),
         name: z.string().min(1),
+        password: z.string().min(8),
       })
     )
     .mutation(async ({ input }) => {
+      const passwordHash = await hashPassword(input.password);
       return await db.transaction(async (tx) => {
         const [user] = await tx
           .insert(users)
-          .values({ email: input.email, name: input.name })
+          .values({ email: input.email, name: input.name, passwordHash })
           .returning();
 
         const slug =
@@ -47,13 +50,13 @@ export const userRouter = router({
       });
     }),
 
-  list: publicProcedure.query(async () => {
+  list: protectedProcedure.query(async () => {
     return await db.query.users.findMany({
       with: { memberships: { with: { organization: true } } },
     });
   }),
 
-  getById: publicProcedure
+  getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input }) => {
       return await db.query.users.findFirst({
@@ -62,7 +65,7 @@ export const userRouter = router({
       });
     }),
 
-  remove: publicProcedure
+  remove: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input }) => {
       return await db.delete(users).where(eq(users.id, input.id)).returning();
