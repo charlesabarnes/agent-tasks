@@ -5,6 +5,7 @@ import {
   timestamp,
   pgEnum,
   boolean,
+  integer,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { relations, InferSelectModel, InferInsertModel } from 'drizzle-orm';
@@ -14,6 +15,13 @@ export const memberRoleEnum = pgEnum('member_role', [
   'owner',
   'admin',
   'member',
+]);
+
+export const taskStatusEnum = pgEnum('task_status', [
+  'todo',
+  'in_progress',
+  'done',
+  'blocked',
 ]);
 
 // ── Users ──────────────────────────────────────────────
@@ -42,6 +50,7 @@ export const organizations = pgTable('organization', {
 
 export const organizationsRelations = relations(organizations, ({ many }) => ({
   memberships: many(memberships),
+  projects: many(projects),
 }));
 
 // ── Memberships (join table) ───────────────────────────
@@ -77,6 +86,71 @@ export const membershipsRelations = relations(memberships, ({ one }) => ({
   }),
 }));
 
+// ── Projects ──────────────────────────────────────────
+export const projects = pgTable(
+  'project',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    organizationId: uuid('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    taskCounter: integer('task_counter').default(0).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueSlugPerOrg: uniqueIndex('unique_project_slug_org').on(
+      table.slug,
+      table.organizationId
+    ),
+  })
+);
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [projects.organizationId],
+    references: [organizations.id],
+  }),
+  tasks: many(tasks),
+}));
+
+// ── Tasks ─────────────────────────────────────────────
+export const tasks = pgTable('task', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  number: integer('number').notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  status: taskStatusEnum('status').default('todo').notNull(),
+  projectId: uuid('project_id')
+    .notNull()
+    .references(() => projects.id, { onDelete: 'cascade' }),
+  parentTaskId: uuid('parent_task_id'),
+  assigneeId: uuid('assignee_id').references(() => users.id, {
+    onDelete: 'set null',
+  }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [tasks.projectId],
+    references: [projects.id],
+  }),
+  parentTask: one(tasks, {
+    fields: [tasks.parentTaskId],
+    references: [tasks.id],
+    relationName: 'subtasks',
+  }),
+  subtasks: many(tasks, { relationName: 'subtasks' }),
+  assignee: one(users, {
+    fields: [tasks.assigneeId],
+    references: [users.id],
+  }),
+}));
+
 // ── Type exports ───────────────────────────────────────
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -84,3 +158,7 @@ export type Organization = InferSelectModel<typeof organizations>;
 export type NewOrganization = InferInsertModel<typeof organizations>;
 export type Membership = InferSelectModel<typeof memberships>;
 export type NewMembership = InferInsertModel<typeof memberships>;
+export type Project = InferSelectModel<typeof projects>;
+export type NewProject = InferInsertModel<typeof projects>;
+export type Task = InferSelectModel<typeof tasks>;
+export type NewTask = InferInsertModel<typeof tasks>;

@@ -9,10 +9,17 @@ import { provideFileRouter, requestContextInterceptor } from '@analogjs/router';
 
 import { provideTrpcClient } from '../trpc-client';
 import { AuthService } from './services/auth.service';
+import { WorkspaceService } from './services/workspace.service';
 
 function initAuth(): () => Promise<void> {
   const auth = inject(AuthService);
-  return () => auth.init();
+  const workspace = inject(WorkspaceService);
+  return async () => {
+    await auth.init();
+    if (auth.isAuthenticated()) {
+      await workspace.init();
+    }
+  };
 }
 
 export const appConfig: ApplicationConfig = {

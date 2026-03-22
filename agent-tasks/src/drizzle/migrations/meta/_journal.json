@@ -15,6 +15,13 @@
       "when": 1774212253379,
       "tag": "0001_shallow_patch",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774217183192,
+      "tag": "0002_lively_lorna_dane",
+      "breakpoints": true
     }
   ]
 }
